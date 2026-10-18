@@ -1,0 +1,21 @@
+appId: com.jdaza69.flotatactica
+productName: Flota Tactica
+asar: true
+electronDownload:
+  isVerifyChecksum: true
+  strictSSL: true
+directories:
+  output: release
+files:
+  - dist/**/*
+  - desktop/main.cjs
+  - package.json
+win:
+  target:
+    - target: portable
+      arch: x64
+  artifactName: Flota-Tactica-${version}-Windows.exe
+  # Edición portable sin certificado de firma; permite compilar desde Linux.
+  signAndEditExecutable: false
+portable:
+  requestExecutionLevel: user

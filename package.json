@@ -1,23 +1,32 @@
 {
   "name": "flota-tactica",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
     "test": "tsx --test tests/*.test.ts",
     "test:ui": "playwright test",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "desktop": "npm run build && electron .",
+    "desktop:package": "electron-builder --win portable --x64 --publish never",
+    "desktop:build": "npm run build && npm run desktop:package",
+    "test:desktop": "node scripts/smoke-desktop.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",
     "@types/node": "^24.0.0",
+    "electron": "44.9.0",
+    "electron-builder": "26.15.3",
     "tsx": "^4.20.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.0"
   },
   "engines": {
     "node": ">=22.12.0"
-  }
+  },
+  "description": "Juego táctico naval para 2 a 4 jugadores, con versión web y Windows portable.",
+  "author": "JDaza69",
+  "main": "desktop/main.cjs"
 }

@@ -2,6 +2,53 @@
 
 Juego de estrategia naval por turnos en **HTML5 Canvas + TypeScript**. Permite de 2 a 4 jugadores: un humano contra IAs, varios humanos en **Pass & Play**, o grupos mixtos. Cada participante tiene una flota y un tablero independiente.
 
+## Jugar desde la web o descargar Windows
+
+El despliegue está preparado para el repositorio actual [JDaza69/JUEGO-battleship-COMUN](https://github.com/JDaza69/JUEGO-battleship-COMUN).
+
+- **Web:** la dirección prevista de GitHub Pages es `https://jdaza69.github.io/JUEGO-battleship-COMUN/`. Este enlace solo estará disponible después de activar Pages y completar la publicación.
+- **Windows x64:** el flujo de versiones publica `Flota-Tactica-1.1.0-Windows.exe` y `SHA256SUMS.txt` en [GitHub Releases](https://github.com/JDaza69/JUEGO-battleship-COMUN/releases). La descarga aparece después de que termine correctamente el flujo de Windows.
+
+El `.exe` es una aplicación portable: no requiere Node.js, servidor ni instalación. Guarda el archivo en una carpeta y ábrelo. Incluye todos los recursos y funciona sin conexión. Esta edición no tiene firma digital; Windows puede mostrar un aviso de editor desconocido. La edición web y el ejecutable comparten las mismas reglas y el mismo motor.
+
+### Publicación web
+
+1. En **Settings → Pages → Build and deployment → Source**, selecciona **GitHub Actions**. Esta activación es necesaria una sola vez y exige permisos de administración sobre el repositorio.
+2. En **Actions → Publicar web**, pulsa **Run workflow**, o sube un cambio a `main`.
+3. El flujo instala las dependencias con el lockfile, ejecuta las pruebas, compila, prueba la interfaz y la subruta de producción, y publica `dist/`.
+4. Comprueba que el trabajo `deploy` haya terminado antes de compartir la dirección de Pages.
+
+También se puede activar Pages desde una terminal autenticada con permisos suficientes:
+
+```bash
+node scripts/github-publish.mjs
+```
+
+No necesitas crear un token para los flujos: usan los permisos de GitHub Actions del propio repositorio. La autenticación de la terminal es independiente de la de los flujos.
+
+### Publicar un ejecutable
+
+El flujo **Publicar ejecutable Windows** se inicia al subir una etiqueta `v*` y compila en Windows. Antes de publicar la descarga, abre la aplicación empaquetada y comprueba menú, despliegue, combate, reconocimiento y un turno de IA. A continuación adjunta el `.exe` y su SHA-256 a GitHub Releases. No se guardan binarios ni `node_modules` en el historial del código.
+
+Para futuras versiones, actualiza primero `version` en `package.json` y el lockfile; después crea una etiqueta con esa misma versión:
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+No repitas esos comandos si la etiqueta ya existe. También puedes ejecutar el flujo manualmente: en ese caso, el `.exe` se conserva en **Actions → ejecución → Artifacts**, sin crear una nueva versión pública.
+
+### Compilar escritorio localmente
+
+```bash
+npm ci
+npm run desktop          # Compila y abre la aplicación Electron
+npm run desktop:build    # Genera release/Flota-Tactica-1.1.0-Windows.exe
+```
+
+Se recomienda generar y probar la versión Windows en Windows x64. El flujo de GitHub lo hace automáticamente. En Linux se admite compilación cruzada del portable; ejecutarlo y probarlo requiere Windows. `npm run test:desktop` comprueba `release/win-unpacked/Flota Tactica.exe` en Windows, después de empaquetar.
+
 ## Ejecutar
 
 Requisitos: **Node.js 22.12 o posterior** y npm (se probó con Node 24). No necesita backend, cuentas, claves ni servicios externos.
@@ -67,6 +114,8 @@ Las IAs usan disparos simples; las habilidades tácticas están disponibles para
 
 ## Arquitectura
 
+`desktop/main.cjs` contiene el contenedor Electron; `vite.config.ts` usa assets relativos para Pages y escritorio; los flujos de `.github/workflows/` separan la publicación de la web y la del portable de Windows. El renderer de escritorio no tiene acceso a Node.js y ejecuta el juego en un sandbox.
+
 ```text
 src/
   domain/
@@ -129,12 +178,14 @@ Las APIs `Board.place_ship()`, `Board.is_valid_placement()`, `Board.receive_atta
 npm test                  # Reglas del motor y partidas completas reproducibles
 npm run build             # TypeScript estricto + compilación web
 npx playwright install chromium
-npm run test:ui           # Pruebas funcionales reales de navegador
+npm run build             # Necesario para la prueba de producción
+npm run test:ui           # Pruebas funcionales y build bajo la ruta de Pages
 ```
 
 Si ya tienes Chromium instalado, evita otra descarga con:
 
 ```bash
+npm run build
 CHROMIUM_PATH=/usr/bin/chromium npm run test:ui
 ```
 
